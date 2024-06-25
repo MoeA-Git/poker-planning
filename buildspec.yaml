@@ -29,6 +29,10 @@ phases:
       - docker push $ECR_REPOSITORY_URL/poker-planning:latest
       - echo Writing image definitions file...
       - printf '[{"name":"poker-planning","imageUri":"%s/poker-planning:latest"}]' $ECR_REPOSITORY_URL > imagedefinitions.json
+      - echo Deploying client to S3...
+      - aws s3 sync client/dist s3://$S3_BUCKET_NAME --delete
+      - echo Invalidating CloudFront cache...
+      - aws cloudfront create-invalidation --distribution-id $CLOUDFRONT_DISTRIBUTION_ID --paths "/*"
 artifacts:
   files:
     - imagedefinitions.json
