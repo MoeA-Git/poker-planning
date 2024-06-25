@@ -9,7 +9,7 @@ phases:
     commands:
       - echo Build started on `date`
       - echo Building the Docker image...
-      - docker build -t poker-planning .
+      - docker build -t poker-planning ./server
       - docker tag poker-planning:latest $ECR_REPOSITORY_URL/poker-planning:latest
   post_build:
     commands:
@@ -17,6 +17,6 @@ phases:
       - echo Pushing the Docker image...
       - docker push $ECR_REPOSITORY_URL/poker-planning:latest
       - echo Writing image definitions file...
-      - printf '[{"name":"poker-planning","imageUri":"%s/poker-planning:latest"}]' $ECR_REPOSITORY_URL > imagedefinitions.json
+      - printf '[{"name":"poker-planning","imageUri":"%s"}]' $ECR_REPOSITORY_URL/poker-planning:latest > imagedefinitions.json
 artifacts:
   files: imagedefinitions.json
