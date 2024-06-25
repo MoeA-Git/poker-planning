@@ -14,7 +14,7 @@ COPY . .
 # Build our project
 RUN cargo build --release --bin poker-planning
 
-FROM debian:bullseye-slim AS runtime
+FROM ubuntu:22.04 AS runtime
 WORKDIR /app
 RUN apt-get update -y \
   && apt-get install -y --no-install-recommends openssl \
