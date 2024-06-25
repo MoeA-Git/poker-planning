@@ -6,7 +6,7 @@ phases:
       nodejs: 16
     commands:
       - echo Installing dependencies for the client...
-      - apt-get update && apt-get install -y jq
+      - yum update -y && yum install -y jq
       - cd client
       - npm install
   pre_build:
@@ -28,7 +28,7 @@ phases:
       - cd ..
       - echo Building the Docker image...
       - docker build -t poker-planning ./server
-      - docker images  
+      - docker images  # List Docker images to verify
       - docker tag poker-planning:latest $ECR_REPOSITORY_URL/poker-planning:latest
   post_build:
     commands:
