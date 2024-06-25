@@ -17,6 +17,6 @@ phases:
       - echo Pushing the Docker image...
       - docker push $ECR_REPOSITORY_URL/poker-planning:latest
       - echo Writing image definitions file...
-      - printf '[{"name":"poker-planning","imageUri":"%s"}]' $ECR_REPOSITORY_URL/poker-planning:latest > imagedefinitions.json
+      - printf '[{"name":"poker-planning","imageUri":"%s/poker-planning:latest"}]' $ECR_REPOSITORY_URL > imagedefinitions.json
 artifacts:
   files: imagedefinitions.json
