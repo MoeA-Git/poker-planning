@@ -17,7 +17,8 @@ phases:
       - export DOCKER_HUB_USERNAME=$(echo $DOCKER_HUB_CREDENTIALS | jq -r '.username')
       - export DOCKER_HUB_PASSWORD=$(echo $DOCKER_HUB_CREDENTIALS | jq -r '.password')
       - echo Logging in to Docker Hub...
-      - echo $DOCKER_HUB_PASSWORD | docker login --username $DOCKER_HUB_USERNAME --password-stdin
+      - echo $DOCKER_HUB_PASSWORD > /tmp/dockerhub_password
+      - cat /tmp/dockerhub_password | docker login --username $DOCKER_HUB_USERNAME --password-stdin
   build:
     commands:
       - echo Build started on `date`
@@ -27,7 +28,7 @@ phases:
       - cd ..
       - echo Building the Docker image...
       - docker build -t poker-planning ./server
-      - docker images  # List Docker images to verify
+      - docker images 
       - docker tag poker-planning:latest $ECR_REPOSITORY_URL/poker-planning:latest
   post_build:
     commands:
