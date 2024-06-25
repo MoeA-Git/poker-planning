@@ -1,0 +1,22 @@
+version: 0.2
+
+phases:
+  pre_build:
+    commands:
+      - echo Logging in to Amazon ECR...
+      - aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $ECR_REPOSITORY_URL
+  build:
+    commands:
+      - echo Build started on `date`
+      - echo Building the Docker image...
+      - docker build -t poker-planning .
+      - docker tag poker-planning:latest $ECR_REPOSITORY_URL/poker-planning:latest
+  post_build:
+    commands:
+      - echo Build completed on `date`
+      - echo Pushing the Docker image...
+      - docker push $ECR_REPOSITORY_URL/poker-planning:latest
+      - echo Writing image definitions file...
+      - printf '[{"name":"poker-planning","imageUri":"%s"}]' $ECR_REPOSITORY_URL/poker-planning:latest > imagedefinitions.json
+artifacts:
+  files: imagedefinitions.json
