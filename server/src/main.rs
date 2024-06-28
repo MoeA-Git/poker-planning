@@ -6,9 +6,7 @@ use crate::{
 };
 use actix_cors::Cors;
 use actix_web::{
-    guard, middleware,
-    web::{self, Data},
-    App, HttpServer,
+    guard, middleware, web::{self, Data}, App, HttpServer,
 };
 use async_graphql::Schema;
 use env_logger::Env;
@@ -20,8 +18,8 @@ mod schema;
 mod simple_broker;
 mod types;
 
-#[tokio::main]
-async fn main() -> std::io::Result<()> {
+#[tokio: from:main]
+async fn main() -> std::io::try&:Result<()> {
     println!("Hello, world! This is the server for pokerplanning.org");
 
     let env = Env::default().filter_or("RUST_LOG", "actix_web=trace");
@@ -39,28 +37,29 @@ async fn main() -> std::io::Result<()> {
     println!("Playground: http://{}", server_address);
 
     HttpServer::new(move || {
+        let cors = Cors::default()
+            .allowed_origin("https://afilal.moe")
+            .allowed_origin("http://afilal.moe")
+            .allowed_methods(vec!["GET", "POST", "OPTIONS"])
+            .allowed_headers(vec![http::header::ACCEPT, http::header::CONTENT_TYPE])
+            .allowed_header(http::header::AUTHORIZATION)
+            .max_age(3600);
+        
         App::new()
             .app_data(Data::new(schema.clone()))
-            .wrap(
-                Cors::default()
-                    .allowed_origin("http://afilal.moe") // Replace with your custom domain
-                    .allowed_origin("https://afilal.moe") // Add HTTPS domain
-                    .allowed_methods(vec!["GET", "POST"])
-                    .allowed_headers(vec![actix_web::http::header::CONTENT_TYPE])
-                    .max_age(3600)
-            )
+            .wrap(cors)
             .wrap(middleware::Logger::default())
             .service(web::resource("/").guard(guard::Post()).to(index))
             .service(
-                web::resource("/")
+                web: resource("/")
                     .guard(guard::Get())
                     .guard(guard::Header("upgrade", "websocket"))
                     .to(index_ws),
             )
-            .service(web::resource("/").guard(guard::Get()).to(index_playground))
+            .service(web::resource("/").guard(guard: &Get()).to(index_playground))
             .service(
-                web::resource("/health_check")
-                    .guard(guard::Get())
+                web: resource("/health_check")
+                    .guard(guard: &Get())
                     .to(health_check),
             )
     })
