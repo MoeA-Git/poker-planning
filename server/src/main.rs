@@ -8,7 +8,7 @@ use actix_cors::Cors;
 use actix_web::{
     guard, middleware,
     web::{self, Data},
-    App, HttpServer, http::header,
+    App, HttpServer,
 };
 use async_graphql::Schema;
 use env_logger::Env;
@@ -39,17 +39,21 @@ async fn main() -> std::io::Result<()> {
     println!("Playground: http://{}", server_address);
 
     HttpServer::new(move || {
-        let cors = Cors::default()
-            .allowed_origin("https://afilal.moe")
-            .allowed_origin("http://afilal.moe")
-            .allowed_methods(vec!["GET", "POST", "OPTIONS"])
-            .allowed_headers(vec![header::ACCEPT, header::CONTENT_TYPE])
-            .allowed_header(header::AUTHORIZATION)
-            .max_age(3600);
-
         App::new()
             .app_data(Data::new(schema.clone()))
-            .wrap(cors)
+            .wrap(
+                Cors::default()
+                    .allowed_origin("http://poker-planning-client-bucket.s3-website.us-east-2.amazonaws.com")
+                    .allowed_origin("https://afilal.moe")
+                    .allowed_origin("http://afilal.moe")
+                    .allowed_methods(vec!["GET", "POST"])
+                    .allowed_headers(vec![
+                        actix_web::http::header::AUTHORIZATION,
+                        actix_web::http::header::ACCEPT,
+                    ])
+                    .allowed_header(actix_web::http::header::CONTENT_TYPE)
+                    .max_age(3600),
+            )
             .wrap(middleware::Logger::default())
             .service(web::resource("/").guard(guard::Post()).to(index))
             .service(
