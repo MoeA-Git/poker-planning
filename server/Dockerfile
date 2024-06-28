@@ -1,27 +1,21 @@
-FROM rust:1.58.1-slim-bullseye AS chef
+# Stage 1: Build
+FROM lukemathwalker/cargo-chef:latest-rust-latest as chef
 WORKDIR /app
 
-# Install cargo-chef
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    libssl-dev \
-    pkg-config \
-    && rm -rf /var/lib/apt/lists/*
-RUN cargo install cargo-chef
-
-FROM chef AS planner
+# Copy source code and build dependencies
+FROM chef as planner
 COPY . .
-# Compute a lock-like file for our project
 RUN cargo chef prepare --recipe-path recipe.json
 
-FROM chef AS builder
+# Build dependencies and application
+FROM chef as builder
 COPY --from=planner /app/recipe.json recipe.json
-# Build our project dependencies, not our application!
 RUN cargo chef cook --release --recipe-path recipe.json
 COPY . .
-# Build our project
 RUN cargo build --release --bin poker-planning
 
-FROM debian:bullseye-slim AS runtime
+# Stage 2: Runtime
+FROM ubuntu:22.04 AS runtime
 WORKDIR /app
 RUN apt-get update -y \
   && apt-get install -y --no-install-recommends openssl \
