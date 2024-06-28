@@ -6,7 +6,9 @@ use crate::{
 };
 use actix_cors::Cors;
 use actix_web::{
-    guard, middleware, web::{self, Data}, App, HttpServer,
+    guard, middleware,
+    web::{self, Data},
+    App, HttpServer, http::header,
 };
 use async_graphql::Schema;
 use env_logger::Env;
@@ -18,8 +20,8 @@ mod schema;
 mod simple_broker;
 mod types;
 
-#[tokio: from:main]
-async fn main() -> std::io::try&:Result<()> {
+#[tokio::main]
+async fn main() -> std::io::Result<()> {
     println!("Hello, world! This is the server for pokerplanning.org");
 
     let env = Env::default().filter_or("RUST_LOG", "actix_web=trace");
@@ -41,25 +43,25 @@ async fn main() -> std::io::try&:Result<()> {
             .allowed_origin("https://afilal.moe")
             .allowed_origin("http://afilal.moe")
             .allowed_methods(vec!["GET", "POST", "OPTIONS"])
-            .allowed_headers(vec![http::header::ACCEPT, http::header::CONTENT_TYPE])
-            .allowed_header(http::header::AUTHORIZATION)
+            .allowed_headers(vec![header::ACCEPT, header::CONTENT_TYPE])
+            .allowed_header(header::AUTHORIZATION)
             .max_age(3600);
-        
+
         App::new()
             .app_data(Data::new(schema.clone()))
             .wrap(cors)
             .wrap(middleware::Logger::default())
             .service(web::resource("/").guard(guard::Post()).to(index))
             .service(
-                web: resource("/")
+                web::resource("/")
                     .guard(guard::Get())
                     .guard(guard::Header("upgrade", "websocket"))
                     .to(index_ws),
             )
-            .service(web::resource("/").guard(guard: &Get()).to(index_playground))
+            .service(web::resource("/").guard(guard::Get()).to(index_playground))
             .service(
-                web: resource("/health_check")
-                    .guard(guard: &Get())
+                web::resource("/health_check")
+                    .guard(guard::Get())
                     .to(health_check),
             )
     })
