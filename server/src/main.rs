@@ -5,7 +5,6 @@ use crate::{
     types::Storage,
 };
 use actix_cors::Cors;
-
 use actix_web::{
     guard, middleware,
     web::{self, Data},
@@ -42,7 +41,14 @@ async fn main() -> std::io::Result<()> {
     HttpServer::new(move || {
         App::new()
             .app_data(Data::new(schema.clone()))
-            .wrap(Cors::permissive())
+            .wrap(
+                Cors::default()
+                    .allowed_origin("http://afilal.moe") // Replace with your custom domain
+                    .allowed_origin("https://afilal.moe") // Add HTTPS domain
+                    .allowed_methods(vec!["GET", "POST"])
+                    .allowed_headers(vec![actix_web::http::header::CONTENT_TYPE])
+                    .max_age(3600)
+            )
             .wrap(middleware::Logger::default())
             .service(web::resource("/").guard(guard::Post()).to(index))
             .service(
